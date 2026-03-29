@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.diffplug.spotless' version '6.23.0'
 }
 
 group = 'coffee'
@@ -21,8 +22,55 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+
+    // lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // web
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // maria db
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// formatter 설정
+spotless {
+    java {
+        // windows는 다른 운영체제들과 다르게 줄바꿈 문자열을 다른 형식으로 저장합니다.
+        // 이 설정은 이를 통합해 줍니다.
+        // https://myonee.hashnode.dev/cr-lf
+        lineEndings='UNIX'
+        // 안쓰는 java import문 제거
+        removeUnusedImports()
+        // 포매터 양식
+        palantirJavaFormat("2.28.0")
+    }
+}
+
+// encoding 설정
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+tasks.withType(Test).configureEach {
+    systemProperty "file.encoding", "UTF-8"
+}
+

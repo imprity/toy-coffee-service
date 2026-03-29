@@ -1,0 +1,10 @@
+services:
+  mariadb:
+    image: mariadb:11.8.6
+    container_name: coffee-mariadb
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
+      MARIADB_DATABASE: coffee_db
+    ports:
+      - "42000:3306"
+
