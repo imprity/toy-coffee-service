@@ -12,7 +12,7 @@
 
 - GET /api/coffees/popular
 
-- GET /api/points/
+- GET /api/points
 
 - POST /api/points
 
