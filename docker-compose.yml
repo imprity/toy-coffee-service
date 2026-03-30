@@ -5,6 +5,8 @@ services:
     environment:
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
       MARIADB_DATABASE: coffee_db
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
       - "42000:3306"
 
