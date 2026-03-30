@@ -75,6 +75,21 @@ CREATE TABLE coffee_orders (
     PRIMARY KEY (coffee_order_id)
 )  ENGINE=InnoDB;
 
+CREATE TABLE idempotency_caches (
+    idempotency_cache_id BIGINT NOT NULL AUTO_INCREMENT, 
+
+    idempotency_cache_key UUID NOT NULL,
+
+    idempotency_cache_value TEXT NOT NULL,
+
+    created_at DATETIME(6)  NOT NULL, 
+    modified_at DATETIME(6)  NOT NULL, 
+
+    UNIQUE INDEX `uk_idempotency_cache_key` (idempotency_cache_key),
+
+    PRIMARY KEY (idempotency_cache_id)
+) ENGINE=InnoDB;
+
 ALTER TABLE point_audits ADD CONSTRAINT `fk_point_id`
     FOREIGN KEY (point_id) REFERENCES points(point_id);
 ALTER TABLE point_audits ADD  CONSTRAINT `fk_coffee_order_id`

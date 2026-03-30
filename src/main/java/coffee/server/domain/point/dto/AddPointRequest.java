@@ -4,4 +4,4 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record SetPointRequest(@NotNull BigDecimal pointAmount, @NotNull UUID idempotencyKey) {}
+public record AddPointRequest(@NotNull BigDecimal pointAmount, @NotNull UUID idempotencyKey) {}
