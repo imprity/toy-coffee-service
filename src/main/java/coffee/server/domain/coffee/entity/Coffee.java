@@ -47,4 +47,29 @@ public class Coffee extends BaseEntity {
 
         return coffee;
     }
+
+    private void throwIfNotPositive(Long amount) {
+        if (amount < 0) {
+            throw new RuntimeException(
+                    "operation on coffee stock must be bigger than zero. (%s) < 0".formatted(amount));
+        }
+    }
+
+    public void decreaseStock(@NonNull Long amount) {
+        throwIfNotPositive(amount);
+
+        Long newStock = this.coffeeStock - amount;
+
+        if (newStock < 0) {
+            throw new RuntimeException("(%s) - (%s) < 0".formatted(this.coffeeStock, amount));
+        }
+
+        this.coffeeStock = newStock;
+    }
+
+    public void increaseStock(@NonNull Long amount) {
+        throwIfNotPositive(amount);
+
+        this.coffeeStock += amount;
+    }
 }

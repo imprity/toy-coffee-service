@@ -8,7 +8,7 @@
 
 - GET /api/coffees
 
-- POST /api/coffees/{coffees}/order
+- POST /api/coffee-orders
 
 - GET /api/coffees/popular
 

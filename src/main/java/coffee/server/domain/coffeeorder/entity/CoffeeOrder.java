@@ -1,6 +1,7 @@
 package coffee.server.domain.coffeeorder.entity;
 
 import coffee.server.common.entity.BaseEntity;
+import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.entity.Coffee;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -39,6 +40,19 @@ public class CoffeeOrder extends BaseEntity {
         coffeeOrder.coffeeId = coffee.getCoffeeId();
         coffeeOrder.coffeeSnapshotName = coffee.getCoffeeName();
         coffeeOrder.coffeeSnapshotPrice = coffee.getCoffeePrice();
+        coffeeOrder.coffeeOrderAmount = coffeeOrderAmount;
+        coffeeOrder.customerId = customerId;
+
+        return coffeeOrder;
+    }
+
+    public static CoffeeOrder create(
+            @NonNull CoffeeDto coffeeDto, @NonNull Long coffeeOrderAmount, @NonNull String customerId) {
+        CoffeeOrder coffeeOrder = new CoffeeOrder();
+
+        coffeeOrder.coffeeId = coffeeDto.coffeeId();
+        coffeeOrder.coffeeSnapshotName = coffeeDto.coffeeName();
+        coffeeOrder.coffeeSnapshotPrice = coffeeDto.coffeePrice();
         coffeeOrder.coffeeOrderAmount = coffeeOrderAmount;
         coffeeOrder.customerId = customerId;
 

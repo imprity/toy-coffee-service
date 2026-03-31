@@ -1,7 +1,8 @@
 package coffee.server.domain.coffee.service;
 
-import coffee.server.domain.coffee.dto.GetCoffeeResponse;
+import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.entity.Coffee;
+import coffee.server.domain.coffee.enums.CoffeeStatus;
 import coffee.server.domain.coffee.repository.CoffeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,33 @@ public class CoffeeService {
     private final CoffeeRepository coffeeRepository;
 
     @Transactional(readOnly = true)
-    public GetCoffeeResponse getCoffe(Long coffeeId) {
+    public CoffeeDto getCoffe(Long coffeeId) {
         Coffee coffee = coffeeRepository
                 .findById(coffeeId)
                 .orElseThrow(() -> new RuntimeException("coffee %s not found".formatted(coffeeId)));
 
-        return GetCoffeeResponse.of(coffee);
+        return CoffeeDto.of(coffee);
+    }
+
+    /**
+     * 커피의 재고를 줄입니다.
+     * <p>
+     * 커피가 단종 되었거나 현 커피의 재고 양보다 줄일려고 하는 양이 많을 경우 에러를 던집니다.
+     * @param coffeeId 재고를 줄이고 싶은 커피 id
+     * @param amount 재고를 줄일 양
+     */
+    @Transactional
+    public CoffeeDto decreaseCoffeeStockForOrder(Long coffeeId, Long amount) {
+        Coffee coffee = coffeeRepository
+                .findByIdWithLock(coffeeId)
+                .orElseThrow(() -> new RuntimeException("coffee %s not found".formatted(coffeeId)));
+
+        if (coffee.getCoffeeStatus() == CoffeeStatus.DISCONTINUED) {
+            throw new RuntimeException("can't decrease stock because discontinued");
+        }
+
+        coffee.decreaseStock(amount);
+
+        return CoffeeDto.of(coffee);
     }
 }

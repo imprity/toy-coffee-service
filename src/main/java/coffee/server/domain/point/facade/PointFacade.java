@@ -2,7 +2,7 @@ package coffee.server.domain.point.facade;
 
 import coffee.server.domain.idempotencycache.service.IdempotencyCacheService;
 import coffee.server.domain.point.dto.AddPointRequest;
-import coffee.server.domain.point.dto.GetPointResponse;
+import coffee.server.domain.point.dto.PointDto;
 import coffee.server.domain.point.dto.SetPointRequest;
 import coffee.server.domain.point.service.PointService;
 import coffee.server.domain.pointaudit.enums.PointAuditType;
@@ -23,19 +23,18 @@ public class PointFacade {
     private final TransactionTemplate tx;
 
     @Transactional(readOnly = true)
-    public GetPointResponse getPoint() {
+    public PointDto getPoint() {
         return pointService.getPoint();
     }
 
-    public GetPointResponse setPoint(SetPointRequest req) {
-        GetPointResponse cachedRes =
-                idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<GetPointResponse>() {});
+    public PointDto setPoint(SetPointRequest req) {
+        PointDto cachedRes = idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<PointDto>() {});
         if (cachedRes != null) {
             return cachedRes;
         }
 
-        GetPointResponse res = tx.execute((status) -> {
-            GetPointResponse innerRes = pointService.setPoint(req.pointAmount());
+        PointDto res = tx.execute((status) -> {
+            PointDto innerRes = pointService.setPoint(req.pointAmount());
             idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
             return innerRes;
         });
@@ -45,15 +44,14 @@ public class PointFacade {
         return res;
     }
 
-    public GetPointResponse addPoint(AddPointRequest req) {
-        GetPointResponse cachedRes =
-                idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<GetPointResponse>() {});
+    public PointDto addPoint(AddPointRequest req) {
+        PointDto cachedRes = idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<PointDto>() {});
         if (cachedRes != null) {
             return cachedRes;
         }
 
-        GetPointResponse res = tx.execute((status) -> {
-            GetPointResponse innerRes = pointService.addPoint(req.pointAmount());
+        PointDto res = tx.execute((status) -> {
+            PointDto innerRes = pointService.addPoint(req.pointAmount());
             idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
             return innerRes;
         });

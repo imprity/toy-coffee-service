@@ -5,7 +5,7 @@ import coffee.server.domain.coffee.enums.CoffeeStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-public record GetCoffeeResponse(
+public record CoffeeDto(
         Long coffeeId,
         String coffeeName,
         BigDecimal coffeePrice,
@@ -13,8 +13,8 @@ public record GetCoffeeResponse(
         CoffeeStatus coffeeStatus,
         Instant createdAt,
         Instant modifiedAt) {
-    public static GetCoffeeResponse of(Coffee coffee) {
-        return new GetCoffeeResponse(
+    public static CoffeeDto of(Coffee coffee) {
+        return new CoffeeDto(
                 coffee.getCoffeeId(),
                 coffee.getCoffeeName(),
                 coffee.getCoffeePrice(),

@@ -1,7 +1,7 @@
 package coffee.server.domain.point.service;
 
 import coffee.server.common.config.AppConfig;
-import coffee.server.domain.point.dto.GetPointResponse;
+import coffee.server.domain.point.dto.PointDto;
 import coffee.server.domain.point.entity.Point;
 import coffee.server.domain.point.repository.PointRepository;
 import java.math.BigDecimal;
@@ -17,18 +17,18 @@ public class PointService {
     private final AppConfig appConfig;
 
     @Transactional(readOnly = true)
-    public GetPointResponse getPoint() {
+    public PointDto getPoint() {
         Long pointId = appConfig.getPointIdInDatabase();
 
         Point point = pointRepository
                 .findById(pointId)
                 .orElseThrow(() -> new RuntimeException("point %s not found".formatted(pointId)));
 
-        return GetPointResponse.of(point);
+        return PointDto.of(point);
     }
 
     @Transactional()
-    public GetPointResponse setPoint(@NonNull BigDecimal amount) {
+    public PointDto setPoint(@NonNull BigDecimal amount) {
         Long pointId = appConfig.getPointIdInDatabase();
 
         Point point = pointRepository
@@ -39,11 +39,11 @@ public class PointService {
 
         point = pointRepository.saveAndFlush(point);
 
-        return GetPointResponse.of(point);
+        return PointDto.of(point);
     }
 
     @Transactional()
-    public GetPointResponse addPoint(@NonNull BigDecimal toAdd) {
+    public PointDto addPoint(@NonNull BigDecimal toAdd) {
         Long pointId = appConfig.getPointIdInDatabase();
 
         Point point = pointRepository
@@ -54,11 +54,11 @@ public class PointService {
 
         point = pointRepository.saveAndFlush(point);
 
-        return GetPointResponse.of(point);
+        return PointDto.of(point);
     }
 
     @Transactional()
-    public GetPointResponse subPoint(@NonNull BigDecimal toSub) {
+    public PointDto subPoint(@NonNull BigDecimal toSub) {
         Long pointId = appConfig.getPointIdInDatabase();
 
         Point point = pointRepository
@@ -69,6 +69,6 @@ public class PointService {
 
         point = pointRepository.saveAndFlush(point);
 
-        return GetPointResponse.of(point);
+        return PointDto.of(point);
     }
 }
