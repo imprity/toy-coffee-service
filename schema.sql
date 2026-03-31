@@ -37,7 +37,13 @@ CREATE TABLE point_audits (
 
     point_id BIGINT NOT NULL,
 
-    point_audit_type ENUM ('POINT_SET', 'COFFEE_ORDER_ADDED','COFFEE_ORDER_SUBTRACTED') NOT NULL,
+    point_audit_type ENUM (
+        'POINT_SET', 
+        'POINT_ADD',
+        'POINT_SUB',
+        'COFFEE_ORDER_ADDED',
+        'COFFEE_ORDER_SUBTRACTED'
+    ) NOT NULL,
 
     point_audit_amount DECIMAL(38,2) NOT NULL, 
 
