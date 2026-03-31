@@ -47,7 +47,7 @@ public class PointService {
         Long pointId = appConfig.getPointIdInDatabase();
 
         Point point = pointRepository
-                .findById(pointId)
+                .findByIdWithLock(pointId)
                 .orElseThrow(() -> new RuntimeException("point %s not found".formatted(pointId)));
 
         point.addPointAmount(toAdd);
@@ -62,7 +62,7 @@ public class PointService {
         Long pointId = appConfig.getPointIdInDatabase();
 
         Point point = pointRepository
-                .findById(pointId)
+                .findByIdWithLock(pointId)
                 .orElseThrow(() -> new RuntimeException("point %s not found".formatted(pointId)));
 
         point.subPointAmount(toSub);
