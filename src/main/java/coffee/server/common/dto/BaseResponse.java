@@ -8,4 +8,8 @@ public record BaseResponse<T>(T data, Boolean success, String errorCode, String 
     public static <T> BaseResponse<T> fail(String errorCode, String errorMessage) {
         return new BaseResponse<T>(null, false, errorCode, errorMessage);
     }
+
+    public static <T> BaseResponse<T> fail(String errorCode, String errorMessage, T data) {
+        return new BaseResponse<T>(data, false, errorCode, errorMessage);
+    }
 }

@@ -1,6 +1,10 @@
 package coffee.server.domain.coffee.entity;
 
 import coffee.server.common.entity.BaseEntity;
+import coffee.server.common.exception.ErrorCode;
+import coffee.server.common.exception.ServiceException;
+import coffee.server.common.exception.UserFacingServiceException;
+import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.enums.CoffeeStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @Entity
@@ -50,8 +55,10 @@ public class Coffee extends BaseEntity {
 
     private void throwIfNotPositive(Long amount) {
         if (amount < 0) {
-            throw new RuntimeException(
-                    "operation on coffee stock must be bigger than zero. (%s) < 0".formatted(amount));
+            throw new ServiceException(
+                    ErrorCode.ERROR,
+                    "tried to operate on coffee(id: %s)`s stock  with (%s) value. number should be >= 0"
+                            .formatted(this.coffeeId, amount));
         }
     }
 
@@ -61,7 +68,12 @@ public class Coffee extends BaseEntity {
         Long newStock = this.coffeeStock - amount;
 
         if (newStock < 0) {
-            throw new RuntimeException("(%s) - (%s) < 0".formatted(this.coffeeStock, amount));
+            throw new UserFacingServiceException(
+                    ErrorCode.COFFEE_INSUFFICIENT_STOCK,
+                    HttpStatus.CONFLICT,
+                    CoffeeDto.of(this),
+                    "insufficient coffee stock. coffee stock(%s) < request amount(%s)"
+                            .formatted(this.coffeeStock, amount));
         }
 
         this.coffeeStock = newStock;

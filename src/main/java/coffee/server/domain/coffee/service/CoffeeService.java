@@ -1,10 +1,14 @@
 package coffee.server.domain.coffee.service;
 
+import coffee.server.common.exception.ErrorCode;
+import coffee.server.common.exception.UserFacingServiceException;
 import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.entity.Coffee;
 import coffee.server.domain.coffee.enums.CoffeeStatus;
+import coffee.server.domain.coffee.exception.CoffeeExceptionHelper;
 import coffee.server.domain.coffee.repository.CoffeeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +21,7 @@ public class CoffeeService {
     public CoffeeDto getCoffe(Long coffeeId) {
         Coffee coffee = coffeeRepository
                 .findById(coffeeId)
-                .orElseThrow(() -> new RuntimeException("coffee %s not found".formatted(coffeeId)));
+                .orElseThrow(() -> CoffeeExceptionHelper.createCoffeeNotFound(coffeeId));
 
         return CoffeeDto.of(coffee);
     }
@@ -33,10 +37,14 @@ public class CoffeeService {
     public CoffeeDto decreaseCoffeeStockForOrder(Long coffeeId, Long amount) {
         Coffee coffee = coffeeRepository
                 .findByIdWithLock(coffeeId)
-                .orElseThrow(() -> new RuntimeException("coffee %s not found".formatted(coffeeId)));
+                .orElseThrow(() -> CoffeeExceptionHelper.createCoffeeNotFound(coffeeId));
 
         if (coffee.getCoffeeStatus() == CoffeeStatus.DISCONTINUED) {
-            throw new RuntimeException("can't decrease stock because discontinued");
+            throw new UserFacingServiceException(
+                    ErrorCode.COFFEE_DICONTINUED,
+                    HttpStatus.CONFLICT,
+                    CoffeeDto.of(coffee),
+                    "coffee has been discontinued");
         }
 
         coffee.decreaseStock(amount);
