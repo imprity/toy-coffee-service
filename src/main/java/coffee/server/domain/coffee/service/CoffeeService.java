@@ -39,7 +39,7 @@ public class CoffeeService {
         if (amount < 0) {
             throw new ServiceException(
                     ErrorCode.ERROR,
-                    "tried to decrease coffee(id %s)'s stock by (%s) amount. can't decrease stock by negative number"
+                    "Tried to decrease coffee(id %s)'s stock by (%s) amount. Can't decrease stock by negative number."
                             .formatted(coffeeId, amount));
         }
 
@@ -52,7 +52,7 @@ public class CoffeeService {
                     ErrorCode.COFFEE_DICONTINUED,
                     HttpStatus.CONFLICT,
                     CoffeeDto.of(coffee),
-                    "coffee has been discontinued");
+                    "Coffee has been discontinued.");
         }
 
         Long newStock = coffee.getCoffeeStock() - amount;
@@ -62,7 +62,7 @@ public class CoffeeService {
                     ErrorCode.COFFEE_INSUFFICIENT_STOCK,
                     HttpStatus.CONFLICT,
                     CoffeeDto.of(coffee),
-                    "tried to order (%s) amount of coffee. but we only have (%s) coffee(id %s)"
+                    "Tried to order (%s) amount of coffee. But we only have (%s) coffee(id %s)."
                             .formatted(amount, coffee.getCoffeeStock(), coffee.getCoffeeId()));
         }
 

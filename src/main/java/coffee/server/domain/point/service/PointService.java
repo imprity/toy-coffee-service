@@ -81,7 +81,7 @@ public class PointService {
                     ErrorCode.POINT_INSUFFICIENT_AMOUNT,
                     HttpStatus.CONFLICT,
                     PointDto.of(point),
-                    "insufficient point. tried to use (%s) when point amount is only (%s)"
+                    "Insufficient point. Tried to use (%s) when point amount is only (%s)."
                             .formatted(toUse, point.getPointAmount()));
         }
 
@@ -96,7 +96,7 @@ public class PointService {
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new ServiceException(
                     ErrorCode.ERROR,
-                    "tried to %s point(id: %s)`s point amount with (%s) value. number should be >= 0"
+                    "Tried to %s point(id %s)`s point amount with (%s) value. Number should be >= 0."
                             .formatted(opName, pointId, amount));
         }
     }

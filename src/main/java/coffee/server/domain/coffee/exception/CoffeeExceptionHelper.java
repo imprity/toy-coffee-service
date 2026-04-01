@@ -12,6 +12,6 @@ public final class CoffeeExceptionHelper {
                 ErrorCode.COFFEE_NOT_FOUND,
                 HttpStatus.NOT_FOUND,
                 coffeeId,
-                "could not find coffee id of (%s)".formatted(coffeeId));
+                "Could not find coffee id of (%s).".formatted(coffeeId));
     }
 }

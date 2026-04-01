@@ -36,7 +36,7 @@ public class Point extends BaseEntity {
         if (newPointAmount.compareTo(BigDecimal.ZERO) < 0) {
             throw new ServiceException(
                     ErrorCode.ERROR,
-                    "tried to set point(id %s)`s point amount with (%s) value. point amount should be >= 0"
+                    "Tried to set point(id %s)`s point amount with (%s) value. Point amount should be >= 0."
                             .formatted(this.pointId, newPointAmount));
         }
 

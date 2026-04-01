@@ -42,7 +42,7 @@ public class Coffee extends BaseEntity {
             @NonNull CoffeeStatus coffeeStatus) {
 
         throwIfCoffeeStockNotPositive(
-                coffeeStock, "tried to create coffee with negative stock(%s)".formatted(coffeeStock));
+                coffeeStock, "Tried to create coffee with negative stock(%s).".formatted(coffeeStock));
 
         Coffee coffee = new Coffee();
 
@@ -56,7 +56,7 @@ public class Coffee extends BaseEntity {
 
     public void updateCoffeeStock(@NonNull Long newCoffeeStock) {
         throwIfCoffeeStockNotPositive(
-                newCoffeeStock, "tried to set coffee stock with negative stock(%s)".formatted(coffeeStock));
+                newCoffeeStock, "Tried to set coffee stock with negative stock(%s).".formatted(coffeeStock));
 
         this.coffeeStock = newCoffeeStock;
     }
