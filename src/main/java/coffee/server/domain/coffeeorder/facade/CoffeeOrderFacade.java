@@ -40,7 +40,7 @@ public class CoffeeOrderFacade {
             BigDecimal totalPoint = coffee.coffeePrice().multiply(BigDecimal.valueOf(req.coffeeOrderAmount()));
 
             coffeeService.decreaseCoffeeStockForOrder(coffee.coffeeId(), req.coffeeOrderAmount());
-            PointDto pointDto = pointService.subPoint(totalPoint);
+            PointDto pointDto = pointService.usePoint(totalPoint);
 
             CoffeeOrderDto coffeeOrderDto =
                     coffeeOrderService.createCoffeeOrder(coffee, req.coffeeOrderAmount(), req.customerId());

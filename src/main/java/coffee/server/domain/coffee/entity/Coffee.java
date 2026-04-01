@@ -3,8 +3,6 @@ package coffee.server.domain.coffee.entity;
 import coffee.server.common.entity.BaseEntity;
 import coffee.server.common.exception.ErrorCode;
 import coffee.server.common.exception.ServiceException;
-import coffee.server.common.exception.UserFacingServiceException;
-import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.enums.CoffeeStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @Entity
@@ -43,6 +40,10 @@ public class Coffee extends BaseEntity {
             @NonNull BigDecimal coffeePrice,
             @NonNull Long coffeeStock,
             @NonNull CoffeeStatus coffeeStatus) {
+
+        throwIfCoffeeStockNotPositive(
+                coffeeStock, "tried to create coffee with negative stock(%s)".formatted(coffeeStock));
+
         Coffee coffee = new Coffee();
 
         coffee.coffeeName = coffeeName;
@@ -53,35 +54,16 @@ public class Coffee extends BaseEntity {
         return coffee;
     }
 
-    private void throwIfNotPositive(Long amount) {
-        if (amount < 0) {
-            throw new ServiceException(
-                    ErrorCode.ERROR,
-                    "tried to operate on coffee(id: %s)`s stock  with (%s) value. number should be >= 0"
-                            .formatted(this.coffeeId, amount));
-        }
+    public void updateCoffeeStock(@NonNull Long newCoffeeStock) {
+        throwIfCoffeeStockNotPositive(
+                newCoffeeStock, "tried to set coffee stock with negative stock(%s)".formatted(coffeeStock));
+
+        this.coffeeStock = newCoffeeStock;
     }
 
-    public void decreaseStock(@NonNull Long amount) {
-        throwIfNotPositive(amount);
-
-        Long newStock = this.coffeeStock - amount;
-
-        if (newStock < 0) {
-            throw new UserFacingServiceException(
-                    ErrorCode.COFFEE_INSUFFICIENT_STOCK,
-                    HttpStatus.CONFLICT,
-                    CoffeeDto.of(this),
-                    "insufficient coffee stock. coffee stock(%s) < request amount(%s)"
-                            .formatted(this.coffeeStock, amount));
+    private static void throwIfCoffeeStockNotPositive(Long coffeeStock, String message) {
+        if (coffeeStock < 0) {
+            throw new ServiceException(ErrorCode.COFFEE_NEGATIVE_COFFEE_STOCK, message);
         }
-
-        this.coffeeStock = newStock;
-    }
-
-    public void increaseStock(@NonNull Long amount) {
-        throwIfNotPositive(amount);
-
-        this.coffeeStock += amount;
     }
 }

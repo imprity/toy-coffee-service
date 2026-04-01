@@ -1,6 +1,8 @@
 package coffee.server.domain.point.entity;
 
 import coffee.server.common.entity.BaseEntity;
+import coffee.server.common.exception.ErrorCode;
+import coffee.server.common.exception.ServiceException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,34 +32,14 @@ public class Point extends BaseEntity {
         return point;
     }
 
-    private static BigDecimal checkPositive(BigDecimal number, String message) {
-        if (number.compareTo(BigDecimal.ZERO) < 0) {
-            throw new RuntimeException(message);
+    public void updatePointAmount(@NonNull BigDecimal newPointAmount) {
+        if (newPointAmount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ServiceException(
+                    ErrorCode.ERROR,
+                    "tried to set point(id %s)`s point amount with (%s) value. point amount should be >= 0"
+                            .formatted(this.pointId, newPointAmount));
         }
-        return number;
-    }
-
-    public Point setPointAmount(@NonNull BigDecimal newPointAmount) {
-        checkPositive(newPointAmount, "can't set point amount below zero");
 
         this.pointAmount = newPointAmount;
-
-        return this;
-    }
-
-    public Point addPointAmount(@NonNull BigDecimal toAdd) {
-        BigDecimal newPointAmount = this.pointAmount.add(toAdd);
-        checkPositive(newPointAmount, "(%s) + (%s) < 0".formatted(this.pointAmount, toAdd));
-        this.pointAmount = newPointAmount;
-
-        return this;
-    }
-
-    public Point subPointAmount(@NonNull BigDecimal toSub) {
-        BigDecimal newPointAmount = this.pointAmount.subtract(toSub);
-        checkPositive(newPointAmount, "(%s) - (%s) < 0".formatted(this.pointAmount, toSub));
-        this.pointAmount = newPointAmount;
-
-        return this;
     }
 }

@@ -1,6 +1,7 @@
 package coffee.server.domain.coffee.service;
 
 import coffee.server.common.exception.ErrorCode;
+import coffee.server.common.exception.ServiceException;
 import coffee.server.common.exception.UserFacingServiceException;
 import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.entity.Coffee;
@@ -35,6 +36,13 @@ public class CoffeeService {
      */
     @Transactional
     public CoffeeDto decreaseCoffeeStockForOrder(Long coffeeId, Long amount) {
+        if (amount < 0) {
+            throw new ServiceException(
+                    ErrorCode.ERROR,
+                    "tried to decrease coffee(id %s)'s stock by (%s) amount. can't decrease stock by negative number"
+                            .formatted(coffeeId, amount));
+        }
+
         Coffee coffee = coffeeRepository
                 .findByIdWithLock(coffeeId)
                 .orElseThrow(() -> CoffeeExceptionHelper.createCoffeeNotFound(coffeeId));
@@ -47,7 +55,20 @@ public class CoffeeService {
                     "coffee has been discontinued");
         }
 
-        coffee.decreaseStock(amount);
+        Long newStock = coffee.getCoffeeStock() - amount;
+
+        if (newStock < 0) {
+            throw new UserFacingServiceException(
+                    ErrorCode.COFFEE_INSUFFICIENT_STOCK,
+                    HttpStatus.CONFLICT,
+                    CoffeeDto.of(coffee),
+                    "tried to order (%s) amount of coffee. but we only have (%s) coffee(id %s)"
+                            .formatted(amount, coffee.getCoffeeStock(), coffee.getCoffeeId()));
+        }
+
+        coffee.updateCoffeeStock(newStock);
+
+        coffee = coffeeRepository.save(coffee);
 
         return CoffeeDto.of(coffee);
     }
