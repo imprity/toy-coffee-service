@@ -58,7 +58,7 @@ class PointFacadeTest {
     @DisplayName("포인트_값_add_멱등성_보장")
     void pointAddIdempotencyTest() throws Throwable {
         // GIVEN
-        pointService.setPoint(BigDecimal.valueOf(0));
+        pointService.setPoint(BigDecimal.valueOf(1000));
 
         AddPointRequest req = new AddPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID());
 
@@ -68,6 +68,6 @@ class PointFacadeTest {
         });
 
         // THEN
-        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(1000));
+        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(2000));
     }
 }
