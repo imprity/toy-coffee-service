@@ -1,13 +1,12 @@
-package coffee.server.domain.coffeeorder.facade;
+package coffee.server.domain.point.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import coffee.server.domain.coffee.entity.Coffee;
-import coffee.server.domain.coffee.enums.CoffeeStatus;
-import coffee.server.domain.coffee.repository.CoffeeRepository;
-import coffee.server.domain.coffeeorder.dto.CoffeeOrderRequest;
 import coffee.server.domain.coffeeorder.entity.CoffeeOrder;
 import coffee.server.domain.idempotencycache.entity.IdempotencyCache;
+import coffee.server.domain.point.dto.AddPointRequest;
+import coffee.server.domain.point.dto.SetPointRequest;
 import coffee.server.domain.point.service.PointService;
 import coffee.server.domain.pointaudit.entity.PointAudit;
 import coffee.server.testutil.DatabaseCleaner;
@@ -22,16 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ActiveProfiles("coffee-order-facade-test")
-class CoffeeOrderFacadeTest {
-    @Autowired
-    private CoffeeRepository coffeeRepository;
-
+@ActiveProfiles("point-facade-test")
+class PointFacadeTest {
     @Autowired
     private PointService pointService;
 
     @Autowired
-    private CoffeeOrderFacade coffeeOrderFacade;
+    private PointFacade pointFacade;
 
     @Autowired
     DatabaseCleaner databaseCleaner;
@@ -42,25 +38,36 @@ class CoffeeOrderFacadeTest {
     }
 
     @Test
-    @DisplayName("커피_주문_멱등성_보장")
-    void idempotencyTest() throws Throwable {
+    @DisplayName("포인트_값_set_멱등성_보장")
+    void pointSetIdempotencyTest() throws Throwable {
         // GIVEN
-        pointService.setPoint(BigDecimal.valueOf(100000));
-        Coffee coffee =
-                coffeeRepository.save(Coffee.create("coffee", BigDecimal.valueOf(1000), 10L, CoffeeStatus.SELLING));
+        pointService.setPoint(BigDecimal.valueOf(0));
 
-        CoffeeOrderRequest orderRequest = new CoffeeOrderRequest(UUID.randomUUID(), coffee.getCoffeeId(), 1L, "momo");
+        SetPointRequest req = new SetPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID());
 
         // WHEN
         IdempotencyTestHelper.doIdempotencyTest(() -> {
-            coffeeOrderFacade.orderCoffee(orderRequest);
+            pointFacade.setPoint(req);
         });
 
         // THEN
+        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(1000));
+    }
 
-        // 값이 맞는지
-        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(99000));
-        assertThat(coffeeRepository.findById(coffee.getCoffeeId()).get().getCoffeeStock())
-                .isEqualTo(9L);
+    @Test
+    @DisplayName("포인트_값_add_멱등성_보장")
+    void pointAddIdempotencyTest() throws Throwable {
+        // GIVEN
+        pointService.setPoint(BigDecimal.valueOf(0));
+
+        AddPointRequest req = new AddPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID());
+
+        // WHEN
+        IdempotencyTestHelper.doIdempotencyTest(() -> {
+            pointFacade.addPoint(req);
+        });
+
+        // THEN
+        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(1000));
     }
 }

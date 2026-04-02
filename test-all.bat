@@ -7,7 +7,7 @@ echo "WAITING FOR DB TO START"
 
 timeout /t 10
 
-call gradlew test
+call gradlew test --rerun
 
-REM docker compose -f docker-compose-test.yml down
+docker compose -f docker-compose-test.yml down
 
