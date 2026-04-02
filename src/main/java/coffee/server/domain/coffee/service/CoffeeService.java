@@ -8,6 +8,7 @@ import coffee.server.domain.coffee.entity.Coffee;
 import coffee.server.domain.coffee.enums.CoffeeStatus;
 import coffee.server.domain.coffee.exception.CoffeeExceptionHelper;
 import coffee.server.domain.coffee.repository.CoffeeRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class CoffeeService {
      * @param amount 재고를 줄일 양
      */
     @Transactional
-    public CoffeeDto decreaseCoffeeStockForOrder(Long coffeeId, Long amount) {
+    public CoffeeDto onOrderCoffee(Long coffeeId, Long amount) {
         if (amount < 0) {
             throw new ServiceException(
                     ErrorCode.ERROR,
@@ -56,6 +57,7 @@ public class CoffeeService {
         }
 
         Long newStock = coffee.getCoffeeStock() - amount;
+        Long newOrderCount = coffee.getCoffeeOrderCount() + amount;
 
         if (newStock < 0) {
             throw new UserFacingServiceException(
@@ -67,9 +69,28 @@ public class CoffeeService {
         }
 
         coffee.updateCoffeeStock(newStock);
+        coffee.updateCoffeeOrderCount(newOrderCount);
 
         coffee = coffeeRepository.save(coffee);
 
         return CoffeeDto.of(coffee);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CoffeeDto> getTop3Coffees() {
+        List<Coffee> coffees = coffeeRepository.findAll();
+
+        return coffees.stream()
+                .filter(c -> c.getCoffeeStatus() == CoffeeStatus.SELLING && c.getCoffeeStock() > 0)
+                .sorted((coffeeA, coffeeB) -> {
+                    if (!coffeeA.getCoffeeOrderCount().equals(coffeeB.getCoffeeOrderCount())) {
+                        return (int) (coffeeB.getCoffeeOrderCount() - coffeeA.getCoffeeOrderCount());
+                    } else {
+                        return coffeeA.getCoffeeName().compareTo(coffeeB.getCoffeeName());
+                    }
+                })
+                .limit(3)
+                .map(CoffeeDto::of)
+                .toList();
     }
 }

@@ -33,8 +33,7 @@ public class CoffeeOrderFacade {
         return idempotentExecutorService.executeWithIdempotency(
                 () -> {
                     OrderResult res = tx.execute((status) -> {
-                        CoffeeDto coffee =
-                                coffeeService.decreaseCoffeeStockForOrder(req.coffeeId(), req.coffeeOrderAmount());
+                        CoffeeDto coffee = coffeeService.onOrderCoffee(req.coffeeId(), req.coffeeOrderAmount());
                         BigDecimal totalPoint =
                                 coffee.coffeePrice().multiply(BigDecimal.valueOf(req.coffeeOrderAmount()));
                         PointDto pointDto = pointService.usePoint(totalPoint);

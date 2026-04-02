@@ -3,6 +3,7 @@ package coffee.server.domain.coffee.controller;
 import coffee.server.common.dto.BaseResponse;
 import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.service.CoffeeService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,13 @@ public class CoffeeController {
     @GetMapping("/api/coffees/{coffeeId}")
     public ResponseEntity<BaseResponse<CoffeeDto>> getCoffee(@PathVariable Long coffeeId) {
         CoffeeDto res = coffeeService.getCoffe(coffeeId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(res));
+    }
+
+    @GetMapping("/api/coffees/top-selling")
+    public ResponseEntity<BaseResponse<List<CoffeeDto>>> getTop3Coffees() {
+        List<CoffeeDto> res = coffeeService.getTop3Coffees();
 
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(res));
     }

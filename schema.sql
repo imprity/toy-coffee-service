@@ -6,6 +6,8 @@ CREATE TABLE coffees (
     coffee_stock BIGINT NOT NULL, 
     coffee_status ENUM ('DISCONTINUED','SELLING') NOT NULL,
 
+    coffee_order_count BIGINT NOT NULL,
+
     created_at DATETIME(6) NOT NULL, 
     modified_at DATETIME(6) NOT NULL, 
 
@@ -14,6 +16,9 @@ CREATE TABLE coffees (
 
     CONSTRAINT `coffee_stock_positive`
         CHECK (coffee_stock >= 0),
+
+    CONSTRAINT `coffee_order_count_positive`
+        CHECK (coffee_order_count >= 0),
 
     PRIMARY KEY (coffee_id)
 ) ENGINE=InnoDB;

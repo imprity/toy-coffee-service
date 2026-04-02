@@ -62,5 +62,7 @@ class CoffeeOrderFacadeTest {
         assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(99000));
         assertThat(coffeeRepository.findById(coffee.getCoffeeId()).get().getCoffeeStock())
                 .isEqualTo(9L);
+        assertThat(coffeeRepository.findById(coffee.getCoffeeId()).get().getCoffeeOrderCount())
+                .isEqualTo(1L);
     }
 }

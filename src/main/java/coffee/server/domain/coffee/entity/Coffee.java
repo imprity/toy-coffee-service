@@ -35,6 +35,8 @@ public class Coffee extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CoffeeStatus coffeeStatus;
 
+    private Long coffeeOrderCount;
+
     public static Coffee create(
             @NonNull String coffeeName,
             @NonNull BigDecimal coffeePrice,
@@ -50,6 +52,7 @@ public class Coffee extends BaseEntity {
         coffee.coffeePrice = coffeePrice;
         coffee.coffeeStock = coffeeStock;
         coffee.coffeeStatus = coffeeStatus;
+        coffee.coffeeOrderCount = 0L;
 
         return coffee;
     }
@@ -59,6 +62,16 @@ public class Coffee extends BaseEntity {
                 newCoffeeStock, "Tried to set coffee stock with negative stock(%s).".formatted(coffeeStock));
 
         this.coffeeStock = newCoffeeStock;
+    }
+
+    public void updateCoffeeOrderCount(@NonNull Long newCoffeeOrderCount) {
+        if (newCoffeeOrderCount < 0) {
+            throw new ServiceException(
+                    ErrorCode.COFFEE_NEGATIVE_COFFEE_ORDER_COUNT,
+                    "Tried to set coffee order count with negative order count(%s).".formatted(newCoffeeOrderCount));
+        }
+
+        this.coffeeOrderCount = newCoffeeOrderCount;
     }
 
     private static void throwIfCoffeeStockNotPositive(Long coffeeStock, String message) {

@@ -11,6 +11,7 @@ public record CoffeeDto(
         BigDecimal coffeePrice,
         Long coffeeStock,
         CoffeeStatus coffeeStatus,
+        Long coffeeOrderCount,
         Instant createdAt,
         Instant modifiedAt) {
     public static CoffeeDto of(Coffee coffee) {
@@ -20,6 +21,7 @@ public record CoffeeDto(
                 coffee.getCoffeePrice(),
                 coffee.getCoffeeStock(),
                 coffee.getCoffeeStatus(),
+                coffee.getCoffeeOrderCount(),
                 coffee.getCreatedAt(),
                 coffee.getModifiedAt());
     }
