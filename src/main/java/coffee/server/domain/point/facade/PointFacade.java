@@ -1,5 +1,8 @@
 package coffee.server.domain.point.facade;
 
+import coffee.server.common.exception.ErrorCode;
+import coffee.server.common.exception.ServiceException;
+import coffee.server.domain.idempotencycache.exception.DuplicateCacheKeyException;
 import coffee.server.domain.idempotencycache.service.IdempotencyCacheService;
 import coffee.server.domain.point.dto.AddPointRequest;
 import coffee.server.domain.point.dto.PointDto;
@@ -33,15 +36,27 @@ public class PointFacade {
             return cachedRes;
         }
 
-        PointDto res = tx.execute((status) -> {
-            PointDto innerRes = pointService.setPoint(req.pointAmount());
-            idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
-            return innerRes;
-        });
+        try {
+            PointDto res = tx.execute((status) -> {
+                PointDto innerRes = pointService.setPoint(req.pointAmount());
+                idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
+                return innerRes;
+            });
 
-        pointAuditService.savePointAudit(res.pointId(), PointAuditType.POINT_SET, req.pointAmount(), null, null);
+            pointAuditService.savePointAudit(res.pointId(), PointAuditType.POINT_SET, req.pointAmount(), null, null);
 
-        return res;
+            return res;
+        } catch (DuplicateCacheKeyException e) {
+            cachedRes = idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<PointDto>() {});
+            if (cachedRes != null) {
+                return cachedRes;
+            } else {
+                throw new ServiceException(
+                        ErrorCode.ERROR,
+                        "Could not find idempotencyCacheKey (%s) even though it was supposed to be in idempotency_caches table."
+                                .formatted(req.idempotencyKey()));
+            }
+        }
     }
 
     public PointDto addPoint(AddPointRequest req) {
@@ -50,14 +65,25 @@ public class PointFacade {
             return cachedRes;
         }
 
-        PointDto res = tx.execute((status) -> {
-            PointDto innerRes = pointService.addPoint(req.pointAmount());
-            idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
-            return innerRes;
-        });
+        try {
+            PointDto res = tx.execute((status) -> {
+                PointDto innerRes = pointService.addPoint(req.pointAmount());
+                idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
+                return innerRes;
+            });
 
-        pointAuditService.savePointAudit(res.pointId(), PointAuditType.POINT_ADD, req.pointAmount(), null, null);
-
-        return res;
+            pointAuditService.savePointAudit(res.pointId(), PointAuditType.POINT_ADD, req.pointAmount(), null, null);
+            return res;
+        } catch (DuplicateCacheKeyException e) {
+            cachedRes = idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<PointDto>() {});
+            if (cachedRes != null) {
+                return cachedRes;
+            } else {
+                throw new ServiceException(
+                        ErrorCode.ERROR,
+                        "Could not find idempotencyCacheKey (%s) even though it was supposed to be in idempotency_caches table."
+                                .formatted(req.idempotencyKey()));
+            }
+        }
     }
 }

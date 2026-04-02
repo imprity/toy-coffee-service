@@ -37,8 +37,9 @@ public class PointService {
 
         throwIfOpNumberNotPositive(pointId, amount, "set");
 
-        Point point =
-                pointRepository.findById(pointId).orElseThrow(() -> PointExceptionHelper.createPointNotFound(pointId));
+        Point point = pointRepository
+                .findByIdWithLock(pointId)
+                .orElseThrow(() -> PointExceptionHelper.createPointNotFound(pointId));
 
         point.updatePointAmount(amount);
 
