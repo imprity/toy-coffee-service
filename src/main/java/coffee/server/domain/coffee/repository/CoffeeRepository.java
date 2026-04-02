@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CoffeeRepository extends JpaRepository<Coffee, Long> {
-    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Coffee c WHERE c.coffeeId = :coffeeId")
     Optional<Coffee> findByIdWithLock(@Param("coffeeId") Long coffeeId);
 }

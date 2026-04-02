@@ -1,7 +1,9 @@
 package coffee.server.domain.idempotencycache.service;
 
 import coffee.server.domain.idempotencycache.entity.IdempotencyCache;
+import coffee.server.domain.idempotencycache.exception.DuplicateCacheKeyException;
 import coffee.server.domain.idempotencycache.repository.IdempotencyCacheRepository;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -23,9 +25,9 @@ public class IdempotencyCacheService {
 
         String cacheString = objectMapper.writeValueAsString(idempotencyCacheValue);
 
-        IdempotencyCache cache = IdempotencyCache.create(idempotencyCacheKey, cacheString);
-
-        idempotencyCacheRepository.saveAndFlush(cache);
+        if (!idempotencyCacheRepository.putCache(idempotencyCacheKey, cacheString, Instant.now())) {
+            throw new DuplicateCacheKeyException(idempotencyCacheKey);
+        }
     }
 
     @Nullable

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PointRepository extends JpaRepository<Point, Long> {
-    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Point p WHERE p.pointId = :pointId")
     Optional<Point> findByIdWithLock(@Param("pointId") Long pointId);
 }

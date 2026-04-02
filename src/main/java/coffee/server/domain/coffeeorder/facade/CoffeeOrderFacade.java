@@ -1,10 +1,13 @@
 package coffee.server.domain.coffeeorder.facade;
 
+import coffee.server.common.exception.ErrorCode;
+import coffee.server.common.exception.ServiceException;
 import coffee.server.domain.coffee.dto.CoffeeDto;
 import coffee.server.domain.coffee.service.CoffeeService;
 import coffee.server.domain.coffeeorder.dto.CoffeeOrderDto;
 import coffee.server.domain.coffeeorder.dto.CoffeeOrderRequest;
 import coffee.server.domain.coffeeorder.service.CoffeeOrderService;
+import coffee.server.domain.idempotencycache.exception.DuplicateCacheKeyException;
 import coffee.server.domain.idempotencycache.service.IdempotencyCacheService;
 import coffee.server.domain.point.dto.PointDto;
 import coffee.server.domain.point.service.PointService;
@@ -34,29 +37,38 @@ public class CoffeeOrderFacade {
             return cachedRes;
         }
 
-        OrderResult res = tx.execute((status) -> {
-            CoffeeDto coffee = coffeeService.getCoffe(req.coffeeId());
+        try {
+            OrderResult res = tx.execute((status) -> {
+                CoffeeDto coffee = coffeeService.decreaseCoffeeStockForOrder(req.coffeeId(), req.coffeeOrderAmount());
+                BigDecimal totalPoint = coffee.coffeePrice().multiply(BigDecimal.valueOf(req.coffeeOrderAmount()));
+                PointDto pointDto = pointService.usePoint(totalPoint);
 
-            BigDecimal totalPoint = coffee.coffeePrice().multiply(BigDecimal.valueOf(req.coffeeOrderAmount()));
+                CoffeeOrderDto coffeeOrderDto =
+                        coffeeOrderService.createCoffeeOrder(coffee, req.coffeeOrderAmount(), req.customerId());
+                idempotencyCacheService.putCache(req.idempotencyKey(), coffeeOrderDto);
 
-            coffeeService.decreaseCoffeeStockForOrder(coffee.coffeeId(), req.coffeeOrderAmount());
-            PointDto pointDto = pointService.usePoint(totalPoint);
+                return new OrderResult(coffeeOrderDto, pointDto.pointId(), totalPoint);
+            });
 
-            CoffeeOrderDto coffeeOrderDto =
-                    coffeeOrderService.createCoffeeOrder(coffee, req.coffeeOrderAmount(), req.customerId());
-            idempotencyCacheService.putCache(req.idempotencyKey(), coffeeOrderDto);
+            pointAuditService.savePointAudit(
+                    res.pointId(),
+                    PointAuditType.COFFEE_ORDER_SUBTRACTED,
+                    res.pointAmount(),
+                    res.coffeeOrderDto().coffeeOrderId(),
+                    req.customerId());
 
-            return new OrderResult(coffeeOrderDto, pointDto.pointId(), totalPoint);
-        });
-
-        pointAuditService.savePointAudit(
-                res.pointId(),
-                PointAuditType.COFFEE_ORDER_SUBTRACTED,
-                res.pointAmount(),
-                res.coffeeOrderDto().coffeeOrderId(),
-                req.customerId());
-
-        return res.coffeeOrderDto();
+            return res.coffeeOrderDto();
+        } catch (DuplicateCacheKeyException e) {
+            cachedRes = idempotencyCacheService.getCache(req.idempotencyKey(), new TypeReference<CoffeeOrderDto>() {});
+            if (cachedRes != null) {
+                return cachedRes;
+            } else {
+                throw new ServiceException(
+                        ErrorCode.ERROR,
+                        "Could not find idempotencyCacheKey (%s) even though it was supposed to be in idempotency_caches table."
+                                .formatted(req.idempotencyKey()));
+            }
+        }
     }
 
     private static record OrderResult(CoffeeOrderDto coffeeOrderDto, Long pointId, BigDecimal pointAmount) {}
