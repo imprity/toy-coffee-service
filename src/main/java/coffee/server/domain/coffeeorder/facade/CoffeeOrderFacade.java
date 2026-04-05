@@ -52,6 +52,8 @@ public class CoffeeOrderFacade {
                             res.coffeeOrderDto().coffeeOrderId(),
                             req.customerId());
 
+                    coffeeOrderService.sendCoffeeOrderData(res.coffeeOrderDto());
+
                     return res.coffeeOrderDto();
                 },
                 new TypeReference<>() {},

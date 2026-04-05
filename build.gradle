@@ -74,3 +74,26 @@ tasks.withType(Test).configureEach {
     systemProperty "file.encoding", "UTF-8"
 }
 
+sourceSets {
+    coffeelog {
+        java.srcDir 'src/coffeelog/java'
+    }
+}
+
+tasks.register('runCoffeeLog', JavaExec) {
+    classpath = sourceSets.coffeelog.runtimeClasspath
+    mainClass = 'coffeelog.CoffeeLogApplication'
+}
+
+
+dependencies {
+	coffeelogImplementation 'org.springframework.boot:spring-boot-starter'
+
+    // lombok
+	coffeelogCompileOnly 'org.projectlombok:lombok'
+	coffeelogAnnotationProcessor 'org.projectlombok:lombok'
+
+    // web
+    coffeelogImplementation 'org.springframework.boot:spring-boot-starter-webmvc'
+}
+
