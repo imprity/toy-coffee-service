@@ -1,4 +1,4 @@
-# Toy-Coffee-Shop
+# Toy-Coffee-Service
 
 간단한 장난감 커피 판매 시스템
 
