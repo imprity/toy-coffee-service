@@ -23,6 +23,13 @@ public class CoffeeController {
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(res));
     }
 
+    @GetMapping("/api/coffees")
+    public ResponseEntity<BaseResponse<List<CoffeeDto>>> getCoffee() {
+        List<CoffeeDto> res = coffeeService.getManyCoffe();
+
+        return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(res));
+    }
+
     @GetMapping("/api/coffees/top-selling")
     public ResponseEntity<BaseResponse<List<CoffeeDto>>> getTop3Coffees() {
         List<CoffeeDto> res = coffeeService.getTop3Coffees();

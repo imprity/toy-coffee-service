@@ -28,6 +28,13 @@ public class CoffeeService {
         return CoffeeDto.of(coffee);
     }
 
+    @Transactional(readOnly = true)
+    public List<CoffeeDto> getManyCoffe() {
+        List<Coffee> coffees = coffeeRepository.findAll();
+
+        return coffees.stream().map(CoffeeDto::of).toList();
+    }
+
     /**
      * 커피의 재고를 줄입니다.
      * <p>
