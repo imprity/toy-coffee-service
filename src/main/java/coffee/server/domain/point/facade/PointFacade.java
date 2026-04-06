@@ -25,21 +25,21 @@ public class PointFacade {
     private final TransactionTemplate tx;
 
     @Transactional(readOnly = true)
-    public PointDto getPoint() {
-        return pointService.getPoint();
+    public PointDto getPoint(String customerId) {
+        return pointService.getPoint(customerId);
     }
 
     public PointDto setPoint(SetPointRequest req) {
         return idempotentExecutorService.executeWithIdempotency(
                 () -> {
                     PointDto res = tx.execute((status) -> {
-                        PointDto innerRes = pointService.setPoint(req.pointAmount());
+                        PointDto innerRes = pointService.setPoint(req.customerId(), req.pointAmount());
                         idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
                         return innerRes;
                     });
 
                     pointAuditService.savePointAudit(
-                            res.pointId(), PointAuditType.POINT_SET, req.pointAmount(), null, null);
+                            res.pointId(), PointAuditType.POINT_SET, req.pointAmount(), null, req.customerId());
 
                     return res;
                 },
@@ -51,13 +51,13 @@ public class PointFacade {
         return idempotentExecutorService.executeWithIdempotency(
                 () -> {
                     PointDto res = tx.execute((status) -> {
-                        PointDto innerRes = pointService.addPoint(req.pointAmount());
+                        PointDto innerRes = pointService.addPoint(req.customerId(), req.pointAmount());
                         idempotencyCacheService.putCache(req.idempotencyKey(), innerRes);
                         return innerRes;
                     });
 
                     pointAuditService.savePointAudit(
-                            res.pointId(), PointAuditType.POINT_ADD, req.pointAmount(), null, null);
+                            res.pointId(), PointAuditType.POINT_ADD, req.pointAmount(), null, req.customerId());
 
                     return res;
                 },

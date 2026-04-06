@@ -25,9 +25,12 @@ public class Point extends BaseEntity {
 
     private BigDecimal pointAmount;
 
-    public static Point create(@NonNull BigDecimal pointAmount) {
+    private String customerId;
+
+    public static Point create(@NonNull BigDecimal pointAmount, String customerId) {
         Point point = new Point();
         point.pointAmount = pointAmount;
+        point.customerId = customerId;
 
         return point;
     }

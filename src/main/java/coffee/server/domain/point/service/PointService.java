@@ -1,6 +1,5 @@
 package coffee.server.domain.point.service;
 
-import coffee.server.common.config.AppConfig;
 import coffee.server.common.exception.ErrorCode;
 import coffee.server.common.exception.ServiceException;
 import coffee.server.common.exception.UserFacingServiceException;
@@ -9,7 +8,7 @@ import coffee.server.domain.point.entity.Point;
 import coffee.server.domain.point.exception.PointExceptionHelper;
 import coffee.server.domain.point.repository.PointRepository;
 import java.math.BigDecimal;
-import lombok.NonNull;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,29 +18,30 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PointService {
     private final PointRepository pointRepository;
-    private final AppConfig appConfig;
 
     @Transactional(readOnly = true)
-    public PointDto getPoint() {
-        Long pointId = appConfig.getPointIdInDatabase();
-
-        Point point =
-                pointRepository.findById(pointId).orElseThrow(() -> PointExceptionHelper.createPointNotFound(pointId));
+    public PointDto getPoint(String customerId) {
+        Point point = pointRepository
+                .findByCustomerId(customerId)
+                .orElseThrow(() -> PointExceptionHelper.createPointNotFoundByCustomerId(customerId));
 
         return PointDto.of(point);
     }
 
     @Transactional()
-    public PointDto setPoint(@NonNull BigDecimal amount) {
-        Long pointId = appConfig.getPointIdInDatabase();
+    public PointDto setPoint(String customerId, BigDecimal toSet) {
+        throwIfOpNumberNotPositive(customerId, toSet, "set");
 
-        throwIfOpNumberNotPositive(pointId, amount, "set");
+        Optional<Point> maybePoint = pointRepository.findByCustomerIdWithLock(customerId);
 
-        Point point = pointRepository
-                .findByIdWithLock(pointId)
-                .orElseThrow(() -> PointExceptionHelper.createPointNotFound(pointId));
+        Point point;
+        if (maybePoint.isPresent()) {
+            point = maybePoint.get();
+        } else {
+            point = Point.create(BigDecimal.ZERO, customerId);
+        }
 
-        point.updatePointAmount(amount);
+        point.updatePointAmount(toSet);
 
         point = pointRepository.saveAndFlush(point);
 
@@ -49,14 +49,17 @@ public class PointService {
     }
 
     @Transactional()
-    public PointDto addPoint(@NonNull BigDecimal toAdd) {
-        Long pointId = appConfig.getPointIdInDatabase();
+    public PointDto addPoint(String customerId, BigDecimal toAdd) {
+        throwIfOpNumberNotPositive(customerId, toAdd, "add");
 
-        throwIfOpNumberNotPositive(pointId, toAdd, "add");
+        Optional<Point> maybePoint = pointRepository.findByCustomerIdWithLock(customerId);
 
-        Point point = pointRepository
-                .findByIdWithLock(pointId)
-                .orElseThrow(() -> PointExceptionHelper.createPointNotFound(pointId));
+        Point point;
+        if (maybePoint.isPresent()) {
+            point = maybePoint.get();
+        } else {
+            point = Point.create(BigDecimal.ZERO, customerId);
+        }
 
         point.updatePointAmount(point.getPointAmount().add(toAdd));
 
@@ -66,14 +69,12 @@ public class PointService {
     }
 
     @Transactional()
-    public PointDto usePoint(@NonNull BigDecimal toUse) {
-        Long pointId = appConfig.getPointIdInDatabase();
-
-        throwIfOpNumberNotPositive(pointId, toUse, "use");
+    public PointDto usePoint(String customerId, BigDecimal toUse) {
+        throwIfOpNumberNotPositive(customerId, toUse, "use");
 
         Point point = pointRepository
-                .findByIdWithLock(pointId)
-                .orElseThrow(() -> PointExceptionHelper.createPointNotFound(pointId));
+                .findByCustomerIdWithLock(customerId)
+                .orElseThrow(() -> PointExceptionHelper.createPointNotFoundByCustomerId(customerId));
 
         BigDecimal newPointAmount = point.getPointAmount().subtract(toUse);
 
@@ -93,12 +94,12 @@ public class PointService {
         return PointDto.of(point);
     }
 
-    private void throwIfOpNumberNotPositive(Long pointId, BigDecimal amount, String opName) {
+    private void throwIfOpNumberNotPositive(String customerId, BigDecimal amount, String opName) {
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new ServiceException(
                     ErrorCode.ERROR,
-                    "Tried to %s point(id %s)`s point amount with (%s) value. Number should be >= 0."
-                            .formatted(opName, pointId, amount));
+                    "Tried to %s point(customerId %s)`s point amount with (%s) value. Number should be >= 0."
+                            .formatted(opName, customerId, amount));
         }
     }
 }

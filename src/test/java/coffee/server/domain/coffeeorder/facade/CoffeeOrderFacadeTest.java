@@ -8,6 +8,7 @@ import coffee.server.domain.coffee.repository.CoffeeRepository;
 import coffee.server.domain.coffeeorder.dto.CoffeeOrderRequest;
 import coffee.server.domain.coffeeorder.entity.CoffeeOrder;
 import coffee.server.domain.idempotencycache.entity.IdempotencyCache;
+import coffee.server.domain.point.entity.Point;
 import coffee.server.domain.point.service.PointService;
 import coffee.server.domain.pointaudit.entity.PointAudit;
 import coffee.server.testutil.DatabaseCleaner;
@@ -38,14 +39,15 @@ class CoffeeOrderFacadeTest {
 
     @BeforeEach
     void clearDatabase() {
-        databaseCleaner.deleteTables(Coffee.class, CoffeeOrder.class, IdempotencyCache.class, PointAudit.class);
+        databaseCleaner.deleteTables(
+                Point.class, Coffee.class, CoffeeOrder.class, IdempotencyCache.class, PointAudit.class);
     }
 
     @Test
     @DisplayName("커피_주문_멱등성_보장")
     void idempotencyTest() throws Throwable {
         // GIVEN
-        pointService.setPoint(BigDecimal.valueOf(100000));
+        pointService.setPoint("momo", BigDecimal.valueOf(100000));
         Coffee coffee =
                 coffeeRepository.save(Coffee.create("coffee", BigDecimal.valueOf(1000), 10L, CoffeeStatus.SELLING));
 
@@ -59,7 +61,7 @@ class CoffeeOrderFacadeTest {
         // THEN
 
         // 값이 맞는지
-        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(99000));
+        assertThat(pointService.getPoint("momo").pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(99000));
         assertThat(coffeeRepository.findById(coffee.getCoffeeId()).get().getCoffeeStock())
                 .isEqualTo(9L);
         assertThat(coffeeRepository.findById(coffee.getCoffeeId()).get().getCoffeeOrderCount())

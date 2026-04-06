@@ -7,6 +7,7 @@ import coffee.server.domain.coffeeorder.entity.CoffeeOrder;
 import coffee.server.domain.idempotencycache.entity.IdempotencyCache;
 import coffee.server.domain.point.dto.AddPointRequest;
 import coffee.server.domain.point.dto.SetPointRequest;
+import coffee.server.domain.point.entity.Point;
 import coffee.server.domain.point.service.PointService;
 import coffee.server.domain.pointaudit.entity.PointAudit;
 import coffee.server.testutil.DatabaseCleaner;
@@ -34,16 +35,17 @@ class PointFacadeTest {
 
     @BeforeEach
     void clearDatabase() {
-        databaseCleaner.deleteTables(Coffee.class, CoffeeOrder.class, IdempotencyCache.class, PointAudit.class);
+        databaseCleaner.deleteTables(
+                Point.class, Coffee.class, CoffeeOrder.class, IdempotencyCache.class, PointAudit.class);
     }
 
     @Test
     @DisplayName("포인트_값_set_멱등성_보장")
     void pointSetIdempotencyTest() throws Throwable {
         // GIVEN
-        pointService.setPoint(BigDecimal.valueOf(0));
+        pointService.setPoint("momo", BigDecimal.valueOf(0));
 
-        SetPointRequest req = new SetPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID());
+        SetPointRequest req = new SetPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID(), "momo");
 
         // WHEN
         IdempotencyTestHelper.doIdempotencyTest(() -> {
@@ -51,16 +53,16 @@ class PointFacadeTest {
         });
 
         // THEN
-        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(1000));
+        assertThat(pointService.getPoint("momo").pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(1000));
     }
 
     @Test
     @DisplayName("포인트_값_add_멱등성_보장")
     void pointAddIdempotencyTest() throws Throwable {
         // GIVEN
-        pointService.setPoint(BigDecimal.valueOf(1000));
+        pointService.setPoint("momo", BigDecimal.valueOf(1000));
 
-        AddPointRequest req = new AddPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID());
+        AddPointRequest req = new AddPointRequest(BigDecimal.valueOf(1000), UUID.randomUUID(), "momo");
 
         // WHEN
         IdempotencyTestHelper.doIdempotencyTest(() -> {
@@ -68,6 +70,6 @@ class PointFacadeTest {
         });
 
         // THEN
-        assertThat(pointService.getPoint().pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(2000));
+        assertThat(pointService.getPoint("momo").pointAmount()).isEqualByComparingTo(BigDecimal.valueOf(2000));
     }
 }

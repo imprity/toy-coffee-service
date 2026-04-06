@@ -2,6 +2,7 @@ package coffee.server.domain.point.controller;
 
 import coffee.server.common.dto.BaseResponse;
 import coffee.server.domain.point.dto.AddPointRequest;
+import coffee.server.domain.point.dto.GetPointRequest;
 import coffee.server.domain.point.dto.PointDto;
 import coffee.server.domain.point.dto.SetPointRequest;
 import coffee.server.domain.point.facade.PointFacade;
@@ -20,8 +21,8 @@ public class PointController {
     private final PointFacade pointFacade;
 
     @GetMapping("/api/points")
-    public ResponseEntity<BaseResponse<PointDto>> getPoint() {
-        PointDto res = pointFacade.getPoint();
+    public ResponseEntity<BaseResponse<PointDto>> getPoint(@RequestBody @Valid GetPointRequest getPointRequest) {
+        PointDto res = pointFacade.getPoint(getPointRequest.customerId());
 
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(res));
     }

@@ -28,11 +28,15 @@ CREATE TABLE points (
 
     point_amount DECIMAL(38,2) NOT NULL, 
 
+    customer_id VARCHAR(64),
+
     created_at DATETIME(6) NOT NULL, 
     modified_at DATETIME(6) NOT NULL, 
 
     CONSTRAINT `point_amount_positive`
         CHECK (point_amount >= 0),
+
+    UNIQUE INDEX `uk_customer_id` (customer_id),
 
     PRIMARY KEY (point_id)
 ) ENGINE=InnoDB;
