@@ -3,10 +3,11 @@ package coffee.server.domain.coffeeorder.dto;
 import coffee.server.domain.coffeeorder.entity.CoffeeOrder;
 import java.math.BigDecimal;
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 public record CoffeeOrderDto(
         Long coffeeOrderId,
-        Long coffeeId,
+        @Nullable Long coffeeId,
         String coffeeSnapshotName,
         BigDecimal coffeeSnapshotPrice,
         Long coffeeOrderAmount,

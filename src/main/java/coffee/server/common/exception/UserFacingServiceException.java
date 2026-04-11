@@ -1,15 +1,17 @@
 package coffee.server.common.exception;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 
 @Getter
 public class UserFacingServiceException extends ServiceException {
     private final ErrorCode errorCode;
     private final HttpStatus httpStatus;
-    private final Object data;
+    private final @Nullable Object data;
 
-    public UserFacingServiceException(ErrorCode errorCode, HttpStatus httpStatus, Object data, String message) {
+    public UserFacingServiceException(
+            ErrorCode errorCode, HttpStatus httpStatus, @Nullable Object data, String message) {
         super(errorCode, message);
 
         this.errorCode = errorCode;
@@ -18,7 +20,7 @@ public class UserFacingServiceException extends ServiceException {
     }
 
     public UserFacingServiceException(
-            ErrorCode errorCode, HttpStatus httpStatus, Object data, String message, Throwable cause) {
+            ErrorCode errorCode, HttpStatus httpStatus, @Nullable Object data, String message, Throwable cause) {
         super(errorCode, message, cause);
 
         this.errorCode = errorCode;

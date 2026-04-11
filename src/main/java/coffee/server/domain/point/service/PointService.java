@@ -28,7 +28,7 @@ public class PointService {
         return PointDto.of(point);
     }
 
-    @Transactional()
+    @Transactional
     public PointDto setPoint(String customerId, BigDecimal toSet) {
         throwIfOpNumberNotPositive(customerId, toSet, "set");
 
@@ -48,7 +48,7 @@ public class PointService {
         return PointDto.of(point);
     }
 
-    @Transactional()
+    @Transactional
     public PointDto addPoint(String customerId, BigDecimal toAdd) {
         throwIfOpNumberNotPositive(customerId, toAdd, "add");
 
@@ -68,7 +68,7 @@ public class PointService {
         return PointDto.of(point);
     }
 
-    @Transactional()
+    @Transactional
     public PointDto usePoint(String customerId, BigDecimal toUse) {
         throwIfOpNumberNotPositive(customerId, toUse, "use");
 

@@ -62,7 +62,10 @@ public class IdempotencyTestHelper {
             } catch (Exception e) {
                 if (e instanceof ExecutionException) {
                     System.out.println("======== Exception %s ========".formatted(exceptionCounter));
-                    System.out.println(e.getCause().getMessage());
+                    Throwable cause = e.getCause();
+                    if (cause != null) {
+                        System.out.println(cause.getMessage());
+                    }
                     System.out.println("==============================");
                     exceptionCounter++;
                 } else {

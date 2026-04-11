@@ -35,8 +35,8 @@ public class PointController {
     }
 
     @PostMapping("/api/points/add")
-    public ResponseEntity<BaseResponse<PointDto>> addPoint(@RequestBody @Valid AddPointRequest AddPointRequest) {
-        PointDto res = pointFacade.addPoint(AddPointRequest);
+    public ResponseEntity<BaseResponse<PointDto>> addPoint(@RequestBody @Valid AddPointRequest addPointRequest) {
+        PointDto res = pointFacade.addPoint(addPointRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(BaseResponse.success(res));
     }

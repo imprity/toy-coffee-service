@@ -13,12 +13,13 @@ import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Entity
 @Table(name = "point_audits")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings("NullAway.Init")
 public class PointAudit extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,16 +32,16 @@ public class PointAudit extends BaseEntity {
 
     private BigDecimal pointAuditAmount;
 
-    private Long coffeeOrderId;
+    private @Nullable Long coffeeOrderId;
 
-    private String customerId;
+    private @Nullable String customerId;
 
     public static PointAudit create(
-            @NonNull Long pointId,
-            @NonNull PointAuditType auditType,
-            @NonNull BigDecimal auditAmount,
-            Long coffeeOrderId,
-            String customerId) {
+            Long pointId,
+            PointAuditType auditType,
+            BigDecimal auditAmount,
+            @Nullable Long coffeeOrderId,
+            @Nullable String customerId) {
         PointAudit pointAudit = new PointAudit();
 
         pointAudit.pointId = pointId;

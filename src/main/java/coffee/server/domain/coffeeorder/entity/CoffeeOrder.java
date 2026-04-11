@@ -12,18 +12,19 @@ import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Entity
 @Table(name = "coffee_orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings("NullAway.Init")
 public class CoffeeOrder extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long coffeeOrderId;
 
-    private Long coffeeId;
+    private @Nullable Long coffeeId;
 
     private String coffeeSnapshotName;
 
@@ -33,8 +34,7 @@ public class CoffeeOrder extends BaseEntity {
 
     private String customerId;
 
-    public static CoffeeOrder create(
-            @NonNull Coffee coffee, @NonNull Long coffeeOrderAmount, @NonNull String customerId) {
+    public static CoffeeOrder create(Coffee coffee, Long coffeeOrderAmount, String customerId) {
         CoffeeOrder coffeeOrder = new CoffeeOrder();
 
         coffeeOrder.coffeeId = coffee.getCoffeeId();
@@ -46,8 +46,7 @@ public class CoffeeOrder extends BaseEntity {
         return coffeeOrder;
     }
 
-    public static CoffeeOrder create(
-            @NonNull CoffeeDto coffeeDto, @NonNull Long coffeeOrderAmount, @NonNull String customerId) {
+    public static CoffeeOrder create(CoffeeDto coffeeDto, Long coffeeOrderAmount, String customerId) {
         CoffeeOrder coffeeOrder = new CoffeeOrder();
 
         coffeeOrder.coffeeId = coffeeDto.coffeeId();

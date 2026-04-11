@@ -15,12 +15,12 @@ import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Getter
 @Entity
 @Table(name = "coffees")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings("NullAway.Init")
 public class Coffee extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,10 +38,7 @@ public class Coffee extends BaseEntity {
     private Long coffeeOrderCount;
 
     public static Coffee create(
-            @NonNull String coffeeName,
-            @NonNull BigDecimal coffeePrice,
-            @NonNull Long coffeeStock,
-            @NonNull CoffeeStatus coffeeStatus) {
+            String coffeeName, BigDecimal coffeePrice, Long coffeeStock, CoffeeStatus coffeeStatus) {
 
         throwIfCoffeeStockNotPositive(
                 coffeeStock, "Tried to create coffee with negative stock(%s).".formatted(coffeeStock));
@@ -57,14 +54,14 @@ public class Coffee extends BaseEntity {
         return coffee;
     }
 
-    public void updateCoffeeStock(@NonNull Long newCoffeeStock) {
+    public void updateCoffeeStock(Long newCoffeeStock) {
         throwIfCoffeeStockNotPositive(
                 newCoffeeStock, "Tried to set coffee stock with negative stock(%s).".formatted(coffeeStock));
 
         this.coffeeStock = newCoffeeStock;
     }
 
-    public void updateCoffeeOrderCount(@NonNull Long newCoffeeOrderCount) {
+    public void updateCoffeeOrderCount(Long newCoffeeOrderCount) {
         if (newCoffeeOrderCount < 0) {
             throw new ServiceException(
                     ErrorCode.COFFEE_NEGATIVE_COFFEE_ORDER_COUNT,

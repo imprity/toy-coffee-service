@@ -3,14 +3,15 @@ package coffee.server.domain.pointaudit.dto;
 import coffee.server.domain.pointaudit.entity.PointAudit;
 import coffee.server.domain.pointaudit.enums.PointAuditType;
 import java.math.BigDecimal;
+import org.jspecify.annotations.Nullable;
 
 public record PointAuditDto(
         Long pointAuditId,
         Long pointId,
         PointAuditType pointAuditType,
         BigDecimal pointAuditAmount,
-        Long coffeeOrderId,
-        String customerId) {
+        @Nullable Long coffeeOrderId,
+        @Nullable String customerId) {
     public static PointAuditDto of(PointAudit audit) {
         return new PointAuditDto(
                 audit.getPointAuditId(),

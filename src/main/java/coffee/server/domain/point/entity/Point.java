@@ -12,12 +12,13 @@ import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Entity
 @Table(name = "points")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings("NullAway.Init")
 public class Point extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +26,9 @@ public class Point extends BaseEntity {
 
     private BigDecimal pointAmount;
 
-    private String customerId;
+    private @Nullable String customerId;
 
-    public static Point create(@NonNull BigDecimal pointAmount, String customerId) {
+    public static Point create(BigDecimal pointAmount, String customerId) {
         Point point = new Point();
         point.pointAmount = pointAmount;
         point.customerId = customerId;
@@ -35,7 +36,7 @@ public class Point extends BaseEntity {
         return point;
     }
 
-    public void updatePointAmount(@NonNull BigDecimal newPointAmount) {
+    public void updatePointAmount(BigDecimal newPointAmount) {
         if (newPointAmount.compareTo(BigDecimal.ZERO) < 0) {
             throw new ServiceException(
                     ErrorCode.ERROR,

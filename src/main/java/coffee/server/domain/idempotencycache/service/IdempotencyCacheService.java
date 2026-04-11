@@ -6,7 +6,6 @@ import coffee.server.domain.idempotencycache.repository.IdempotencyCacheReposito
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class IdempotencyCacheService {
     private final IdempotencyCacheRepository idempotencyCacheRepository;
 
     @Transactional
-    public void putCache(@NonNull UUID idempotencyCacheKey, @NonNull Object idempotencyCacheValue) {
+    public void putCache(UUID idempotencyCacheKey, Object idempotencyCacheValue) {
 
         String cacheString = objectMapper.writeValueAsString(idempotencyCacheValue);
 
@@ -32,7 +31,7 @@ public class IdempotencyCacheService {
 
     @Nullable
     @Transactional(readOnly = true)
-    public <T> T getCache(@NonNull UUID idempotencyCacheKey, TypeReference<T> valueType) {
+    public <T> T getCache(UUID idempotencyCacheKey, TypeReference<T> valueType) {
         Optional<IdempotencyCache> cacheOpt = idempotencyCacheRepository.findByIdempotencyCacheKey(idempotencyCacheKey);
 
         if (cacheOpt.isEmpty()) {

@@ -47,7 +47,8 @@ public class DatabaseCleaner {
         StringBuilder result = new StringBuilder();
         boolean isFirstChar = true;
 
-        for (char c : input.toCharArray()) {
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
             if (Character.isUpperCase(c)) {
                 if (isFirstChar) {
                     result.append(Character.toLowerCase(c));

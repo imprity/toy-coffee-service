@@ -10,12 +10,12 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Getter
 @Entity
 @Table(name = "idempotency_caches")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuppressWarnings("NullAway.Init")
 public class IdempotencyCache extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +25,7 @@ public class IdempotencyCache extends BaseEntity {
 
     private String idempotencyCacheValue;
 
-    public static IdempotencyCache create(@NonNull UUID idempotencyCacheKey, @NonNull String idempotencyCacheValue) {
+    public static IdempotencyCache create(UUID idempotencyCacheKey, String idempotencyCacheValue) {
         IdempotencyCache cache = new IdempotencyCache();
 
         cache.idempotencyCacheKey = idempotencyCacheKey;

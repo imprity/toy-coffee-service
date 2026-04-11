@@ -52,7 +52,7 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     private <T> @Nullable T getAttribute(RequestAttributes requestAttributes, String name) {
         return (T) requestAttributes.getAttribute(name, RequestAttributes.SCOPE_REQUEST);
     }

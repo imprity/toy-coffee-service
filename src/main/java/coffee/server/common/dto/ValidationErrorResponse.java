@@ -6,14 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 public class ValidationErrorResponse {
-    private List<String> globalErrors;
-    private Map<String, String> fieldErrors;
+    private @Nullable List<String> globalErrors;
+    private @Nullable Map<String, String> fieldErrors;
 
     public void putGlobalError(ObjectError err) {
         if (this.globalErrors == null) {
